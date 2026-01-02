@@ -380,7 +380,7 @@ export default function Home() {
       </section>
 
       {/* Gallery Section */}
-      <section id="gallery" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('gallery') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <section id="gallery" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('gallery') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
           <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Gallery</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -403,7 +403,7 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <section id="contact" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h3 className="text-6xl font-black text-black mb-10 tracking-tight">Visit Us</h3>
