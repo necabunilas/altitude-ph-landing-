@@ -1,10 +1,188 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+
+  const galleryPhotos = [
+    '6CCF93EA-0E83-423B-9504-6BAA73BEF798_4_5005_c.jpeg',
+    '8BE81068-CE48-4439-9BE0-545B60B4157F.jpeg',
+    '3F6DBA67-D9BE-4783-9CD1-CB185EB7C68A_1_105_c.jpeg',
+    'B3D4475F-D5E4-46BA-A6CA-F315C1F59CEA_1_105_c.jpeg',
+    '9083CD6C-EF73-4919-AAA9-0A5C84DAE84B_1_105_c.jpeg',
+    'A095E589-437D-416C-B987-A826C8EC5EA5_1_105_c.jpeg',
+    '95B19B86-C81E-46DD-A081-8E25E958A3B5_1_105_c.jpeg',
+    'C8EF3D05-5BEB-4802-8FF0-B532EAB1D9BA_1_105_c.jpeg'
+  ];
+
+  const currentImageIndex = selectedImage ? galleryPhotos.indexOf(selectedImage) : -1;
+
+  // Check if store is open
+  useEffect(() => {
+    const checkIfOpen = () => {
+      const now = new Date();
+      const day = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const currentTime = hours + minutes / 60;
+
+      // Tuesday (2) is closed
+      if (day === 2) {
+        setIsOpen(false);
+        return;
+      }
+
+      // Sunday (0): 2pm-7pm (14:00-19:00)
+      if (day === 0) {
+        setIsOpen(currentTime >= 14 && currentTime < 19);
+        return;
+      }
+
+      // Monday-Saturday (except Tuesday): 10am-8pm (10:00-20:00)
+      setIsOpen(currentTime >= 10 && currentTime < 20);
+    };
+
+    checkIfOpen();
+    const interval = setInterval(checkIfOpen, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  // Gallery navigation
+  const navigateGallery = (direction: 'prev' | 'next') => {
+    if (currentImageIndex === -1) return;
+
+    let newIndex;
+    if (direction === 'prev') {
+      newIndex = currentImageIndex === 0 ? galleryPhotos.length - 1 : currentImageIndex - 1;
+    } else {
+      newIndex = currentImageIndex === galleryPhotos.length - 1 ? 0 : currentImageIndex + 1;
+    }
+    setSelectedImage(galleryPhotos[newIndex]);
+  };
+
+  // Keyboard navigation for gallery
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!selectedImage) return;
+
+      if (e.key === 'ArrowLeft') {
+        navigateGallery('prev');
+      } else if (e.key === 'ArrowRight') {
+        navigateGallery('next');
+      } else if (e.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [selectedImage, currentImageIndex]);
+
+  // Smooth scroll helper
+  const smoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.querySelector(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setMobileMenuOpen(false);
+    }
+  };
+
+  // Scroll to top handler
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Show/hide scroll to top button based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 400) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Track active section based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['about', 'menu', 'hobbies', 'gallery', 'contact'];
+      const scrollPosition = window.scrollY + 100; // offset for navbar
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+
+      // If at the very top, clear active section
+      if (window.scrollY < 200) {
+        setActiveSection('');
+      }
+    };
+
+    handleScroll(); // Check on mount
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Add section to visible sections
+          if (entry.target.id) {
+            setVisibleSections((prev) => new Set(prev).add(entry.target.id));
+          }
+
+          // Add animate-in class to hobby cards and gallery items
+          if (entry.target.classList.contains('hobby-card') ||
+              entry.target.classList.contains('gallery-item')) {
+            entry.target.classList.add('animate-in');
+          }
+        }
+      });
+    }, observerOptions);
+
+    // Observe all animatable sections and elements
+    const sections = ['hero', 'about', 'hobbies', 'menu', 'gallery', 'contact'];
+    sections.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    // Observe hobby cards
+    const hobbyCards = document.querySelectorAll('.hobby-card');
+    hobbyCards.forEach((card) => observer.observe(card));
+
+    // Observe gallery items
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    galleryItems.forEach((item) => observer.observe(item));
+
+    return () => observer.disconnect();
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -20,11 +198,11 @@ export default function Home() {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex space-x-10">
-              <a href="#about" className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide">About</a>
-              <a href="#menu" className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide">Menu</a>
-              <a href="#hobbies" className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide">Hobbies</a>
-              <a href="#gallery" className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide">Gallery</a>
-              <a href="#contact" className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide">Contact</a>
+              <a href="#about" onClick={(e) => smoothScroll(e, '#about')} className={`${activeSection === 'about' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide`}>About</a>
+              <a href="#menu" onClick={(e) => smoothScroll(e, '#menu')} className={`${activeSection === 'menu' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide`}>Menu</a>
+              <a href="#hobbies" onClick={(e) => smoothScroll(e, '#hobbies')} className={`${activeSection === 'hobbies' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide`}>Hobbies</a>
+              <a href="#gallery" onClick={(e) => smoothScroll(e, '#gallery')} className={`${activeSection === 'gallery' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide`}>Gallery</a>
+              <a href="#contact" onClick={(e) => smoothScroll(e, '#contact')} className={`${activeSection === 'contact' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide`}>Contact</a>
             </div>
 
             {/* Mobile Menu Button */}
@@ -49,11 +227,11 @@ export default function Home() {
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t border-gray-100">
               <div className="flex flex-col space-y-4">
-                <a href="#about" onClick={() => setMobileMenuOpen(false)} className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2">About</a>
-                <a href="#menu" onClick={() => setMobileMenuOpen(false)} className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2">Menu</a>
-                <a href="#hobbies" onClick={() => setMobileMenuOpen(false)} className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2">Hobbies</a>
-                <a href="#gallery" onClick={() => setMobileMenuOpen(false)} className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2">Gallery</a>
-                <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-[#1A1A1A] hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2">Contact</a>
+                <a href="#about" onClick={(e) => smoothScroll(e, '#about')} className={`${activeSection === 'about' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>About</a>
+                <a href="#menu" onClick={(e) => smoothScroll(e, '#menu')} className={`${activeSection === 'menu' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>Menu</a>
+                <a href="#hobbies" onClick={(e) => smoothScroll(e, '#hobbies')} className={`${activeSection === 'hobbies' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>Hobbies</a>
+                <a href="#gallery" onClick={(e) => smoothScroll(e, '#gallery')} className={`${activeSection === 'gallery' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>Gallery</a>
+                <a href="#contact" onClick={(e) => smoothScroll(e, '#contact')} className={`${activeSection === 'contact' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>Contact</a>
               </div>
             </div>
           )}
@@ -61,7 +239,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-40 pb-32 px-4 bg-[#F7F7F7]">
+      <section id="hero" className={`pt-40 pb-32 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <h2 className="text-7xl md:text-9xl font-black text-black mb-8 leading-none tracking-tighter">
@@ -89,7 +267,7 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-28 px-4 bg-white">
+      <section id="about" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-20 items-center">
             <div className="space-y-8">
@@ -116,12 +294,12 @@ export default function Home() {
       </section>
 
       {/* Hobbies/Activities Section */}
-      <section id="hobbies" className="py-28 px-4 bg-[#F7F7F7]">
+      <section id="hobbies" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('hobbies') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
           <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Our Passion</h3>
           <div className="grid md:grid-cols-3 gap-8">
             {/* Cycling */}
-            <div className="bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group">
+            <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group">
               <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center mb-10 group-hover:bg-black transition-colors duration-300">
                 <svg className="w-12 h-12 text-black group-hover:text-[#E0A55B]" fill="currentColor" viewBox="0 0 640 512">
                   <path d="M400 96a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm27.2 64l-61.8-48.8c-17.3-13.6-41.7-13.8-59.1-.3l-83.1 64.2c-30.7 23.8-28.5 70.8 4.3 91.6L288 305.1V416c0 17.7 14.3 32 32 32s32-14.3 32-32V288c0-10.7-5.3-20.7-14.2-26.6L295 232.9l60.3-48.5L396 217c5.7 4.5 12.7 7 20 7h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H427.2zM56 384a72 72 0 1 1 144 0A72 72 0 1 1 56 384zm200 0A128 128 0 1 0 0 384a128 128 0 1 0 256 0zm184 0a72 72 0 1 1 144 0 72 72 0 1 1 -144 0zm200 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z"/>
@@ -135,7 +313,7 @@ export default function Home() {
             </div>
 
             {/* Running */}
-            <div className="bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group">
+            <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group">
               <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center mb-10 group-hover:bg-black transition-colors duration-300">
                 <svg className="w-12 h-12 text-black group-hover:text-[#E0A55B]" fill="currentColor" viewBox="0 0 448 512">
                   <path d="M320 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM125.7 175.5c9.9-9.9 23.4-15.5 37.5-15.5c1.9 0 3.8 .1 5.6 .3L137.6 254c-9.3 28 1.7 58.8 26.8 74.5l86.2 53.9-25.4 88.8c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l28.7-100.4c5.9-20.6-2.6-42.6-20.7-53.9L238 299l30.9-82.4 5.1 12.3C289 264.7 323.9 288 362.7 288H384c17.7 0 32-14.3 32-32s-14.3-32-32-32H362.7c-12.9 0-24.6-7.8-29.5-19.7l-6.3-15.2c-11.6-27.8-42-42.2-70.7-33.5l-97.8 29.3c-32.1 9.6-54.4 39.5-54.4 73.1V304c0 17.7 14.3 32 32 32s32-14.3 32-32V258.5c0-5.6 3.1-10.8 8.1-13.3l29.7-15c.8-.4 1.6-.8 2.4-1.2l-7.8 20.9c-8.4 22.4-6.9 47.3 4.2 68.5l43.3 82.5c8.6 16.4 28.7 22.8 45.1 14.2s22.8-28.7 14.2-45.1l-43.3-82.5c-1.9-3.6-2.6-7.8-2-11.8l18.6-124.8c2-13.6-4.2-27.1-15.5-33.9l-61.4-37.3c-11.3-6.9-25.2-9.4-38.5-7.1L125.7 175.5z"/>
@@ -149,7 +327,7 @@ export default function Home() {
             </div>
 
             {/* Outdoors */}
-            <div className="bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group">
+            <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group">
               <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center mb-10 group-hover:bg-black transition-colors duration-300">
                 <svg className="w-12 h-12 text-black group-hover:text-[#E0A55B]" fill="currentColor" viewBox="0 0 512 512">
                   <path d="M256 32c12.5 0 24.1 6.4 30.8 17L503.4 394.4c5.6 8.9 8.6 19.2 8.6 29.7c0 30.9-25 55.9-55.9 55.9H55.9C25 480 0 455 0 424.1c0-10.5 3-20.8 8.6-29.7L225.2 49c6.6-10.6 18.3-17 30.8-17zm65 192L256 120.4 176.9 246.5 208 288l-48 64h192l-31-64z"/>
@@ -166,7 +344,7 @@ export default function Home() {
       </section>
 
       {/* Menu Preview */}
-      <section id="menu" className="py-28 px-4 bg-white">
+      <section id="menu" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('menu') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-5xl mx-auto">
           <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Our Menu</h3>
 
@@ -202,25 +380,16 @@ export default function Home() {
       </section>
 
       {/* Gallery Section */}
-      <section id="gallery" className="py-28 px-4 bg-white">
+      <section id="gallery" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('gallery') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
           <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Gallery</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Gallery Grid */}
-            {[
-              '6CCF93EA-0E83-423B-9504-6BAA73BEF798_4_5005_c.jpeg',
-              '8BE81068-CE48-4439-9BE0-545B60B4157F.jpeg',
-              '3F6DBA67-D9BE-4783-9CD1-CB185EB7C68A_1_105_c.jpeg',
-              'B3D4475F-D5E4-46BA-A6CA-F315C1F59CEA_1_105_c.jpeg',
-              '9083CD6C-EF73-4919-AAA9-0A5C84DAE84B_1_105_c.jpeg',
-              'A095E589-437D-416C-B987-A826C8EC5EA5_1_105_c.jpeg',
-              '95B19B86-C81E-46DD-A081-8E25E958A3B5_1_105_c.jpeg',
-              'C8EF3D05-5BEB-4802-8FF0-B532EAB1D9BA_1_105_c.jpeg'
-            ].map((photo, index) => (
+            {galleryPhotos.map((photo, index) => (
               <div
                 key={index}
                 onClick={() => setSelectedImage(photo)}
-                className="aspect-square overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                className="gallery-item aspect-square overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
               >
                 <img
                   src={`/gallery/${photo}`}
@@ -234,13 +403,19 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-28 px-4 bg-[#F7F7F7]">
+      <section id="contact" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h3 className="text-6xl font-black text-black mb-10 tracking-tight">Visit Us</h3>
-            <p className="text-2xl text-[#1A1A1A] font-semibold tracking-wide">
+            <p className="text-2xl text-[#1A1A1A] font-semibold tracking-wide mb-4">
               Come for the coffee, stay for the community
             </p>
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-default">
+              <div className={`w-3 h-3 rounded-full ${isOpen ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+              <span className="font-bold text-lg">
+                {isOpen ? 'Open Now' : 'Closed'}
+              </span>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
@@ -300,23 +475,86 @@ export default function Home() {
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
         >
+          {/* Close Button */}
           <button
             onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 text-white hover:text-[#E0A55B] transition-colors"
+            className="absolute top-4 right-4 text-white hover:text-[#E0A55B] transition-colors z-10"
             aria-label="Close modal"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          <img
-            src={`/gallery/${selectedImage}`}
-            alt="Gallery image enlarged"
-            className="max-w-full max-h-full object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
+
+          {/* Previous Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateGallery('prev');
+            }}
+            className="absolute left-4 text-white hover:text-[#E0A55B] transition-colors z-10 bg-black/50 p-3 rounded-full"
+            aria-label="Previous image"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {/* Image */}
+          <div className="relative">
+            <img
+              src={`/gallery/${selectedImage}`}
+              alt="Gallery image enlarged"
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+            {/* Image Counter */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-semibold">
+              {currentImageIndex + 1} / {galleryPhotos.length}
+            </div>
+          </div>
+
+          {/* Next Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateGallery('next');
+            }}
+            className="absolute right-4 text-white hover:text-[#E0A55B] transition-colors z-10 bg-black/50 p-3 rounded-full"
+            aria-label="Next image"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
       )}
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 left-6 w-14 h-14 bg-[#E0A55B] hover:bg-black text-black hover:text-[#E0A55B] rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 z-40"
+          aria-label="Scroll to top"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
+      )}
+
+      {/* Messenger Contact Button */}
+      <a
+        href="https://www.facebook.com/messages/t/100083265109805"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 w-16 h-16 bg-[#0084FF] hover:bg-[#0066CC] rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 z-40"
+        aria-label="Message us on Facebook Messenger"
+      >
+        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.477 2 2 6.145 2 11.243c0 2.912 1.45 5.51 3.717 7.217V22l3.406-1.87c.91.252 1.876.387 2.877.387 5.523 0 10-4.145 10-9.243S17.523 2 12 2zm.993 12.478l-2.557-2.73-4.992 2.73 5.488-5.823 2.617 2.73 4.933-2.73-5.489 5.823z"/>
+        </svg>
+      </a>
 
       {/* Footer */}
       <footer className="bg-black text-white py-20 px-4">
