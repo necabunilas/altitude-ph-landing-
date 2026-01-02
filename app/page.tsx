@@ -248,7 +248,7 @@ export default function Home() {
             <p className="text-xl md:text-2xl text-[#1A1A1A] mb-14 max-w-3xl mx-auto leading-relaxed font-medium">
               Where great coffee meets outdoor passion. Your pit stop for cycling, running, and unforgettable outdoor experiences.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <a
                 href="#menu"
                 className="px-12 py-5 bg-[#E0A55B] text-black font-bold uppercase tracking-wide hover:bg-[#d09849] transition-all duration-300 shadow-lg hover:shadow-xl"
@@ -299,8 +299,8 @@ export default function Home() {
           <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Our Passion</h3>
           <div className="grid md:grid-cols-3 gap-8">
             {/* Cycling */}
-            <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group">
-              <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center mb-10 group-hover:bg-black transition-colors duration-300">
+            <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group text-center md:text-left">
+              <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center mb-10 group-hover:bg-black transition-colors duration-300 mx-auto md:mx-0">
                 <svg className="w-12 h-12 text-black group-hover:text-[#E0A55B]" fill="currentColor" viewBox="0 0 640 512">
                   <path d="M400 96a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm27.2 64l-61.8-48.8c-17.3-13.6-41.7-13.8-59.1-.3l-83.1 64.2c-30.7 23.8-28.5 70.8 4.3 91.6L288 305.1V416c0 17.7 14.3 32 32 32s32-14.3 32-32V288c0-10.7-5.3-20.7-14.2-26.6L295 232.9l60.3-48.5L396 217c5.7 4.5 12.7 7 20 7h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H427.2zM56 384a72 72 0 1 1 144 0A72 72 0 1 1 56 384zm200 0A128 128 0 1 0 0 384a128 128 0 1 0 256 0zm184 0a72 72 0 1 1 144 0 72 72 0 1 1 -144 0zm200 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z"/>
                 </svg>
@@ -313,8 +313,8 @@ export default function Home() {
             </div>
 
             {/* Running */}
-            <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group">
-              <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center mb-10 group-hover:bg-black transition-colors duration-300">
+            <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group text-center md:text-left">
+              <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center mb-10 group-hover:bg-black transition-colors duration-300 mx-auto md:mx-0">
                 <svg className="w-12 h-12 text-black group-hover:text-[#E0A55B]" fill="currentColor" viewBox="0 0 448 512">
                   <path d="M320 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM125.7 175.5c9.9-9.9 23.4-15.5 37.5-15.5c1.9 0 3.8 .1 5.6 .3L137.6 254c-9.3 28 1.7 58.8 26.8 74.5l86.2 53.9-25.4 88.8c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l28.7-100.4c5.9-20.6-2.6-42.6-20.7-53.9L238 299l30.9-82.4 5.1 12.3C289 264.7 323.9 288 362.7 288H384c17.7 0 32-14.3 32-32s-14.3-32-32-32H362.7c-12.9 0-24.6-7.8-29.5-19.7l-6.3-15.2c-11.6-27.8-42-42.2-70.7-33.5l-97.8 29.3c-32.1 9.6-54.4 39.5-54.4 73.1V304c0 17.7 14.3 32 32 32s32-14.3 32-32V258.5c0-5.6 3.1-10.8 8.1-13.3l29.7-15c.8-.4 1.6-.8 2.4-1.2l-7.8 20.9c-8.4 22.4-6.9 47.3 4.2 68.5l43.3 82.5c8.6 16.4 28.7 22.8 45.1 14.2s22.8-28.7 14.2-45.1l-43.3-82.5c-1.9-3.6-2.6-7.8-2-11.8l18.6-124.8c2-13.6-4.2-27.1-15.5-33.9l-61.4-37.3c-11.3-6.9-25.2-9.4-38.5-7.1L125.7 175.5z"/>
                 </svg>
@@ -327,8 +327,8 @@ export default function Home() {
             </div>
 
             {/* Outdoors */}
-            <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group">
-              <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center mb-10 group-hover:bg-black transition-colors duration-300">
+            <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group text-center md:text-left">
+              <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center mb-10 group-hover:bg-black transition-colors duration-300 mx-auto md:mx-0">
                 <svg className="w-12 h-12 text-black group-hover:text-[#E0A55B]" fill="currentColor" viewBox="0 0 512 512">
                   <path d="M256 32c12.5 0 24.1 6.4 30.8 17L503.4 394.4c5.6 8.9 8.6 19.2 8.6 29.7c0 30.9-25 55.9-55.9 55.9H55.9C25 480 0 455 0 424.1c0-10.5 3-20.8 8.6-29.7L225.2 49c6.6-10.6 18.3-17 30.8-17zm65 192L256 120.4 176.9 246.5 208 288l-48 64h192l-31-64z"/>
                 </svg>
