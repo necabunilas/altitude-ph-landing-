@@ -9,16 +9,22 @@ export default function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const galleryPhotos = [
-    '6CCF93EA-0E83-423B-9504-6BAA73BEF798_4_5005_c.jpeg',
-    '8BE81068-CE48-4439-9BE0-545B60B4157F.jpeg',
-    '3F6DBA67-D9BE-4783-9CD1-CB185EB7C68A_1_105_c.jpeg',
-    'B3D4475F-D5E4-46BA-A6CA-F315C1F59CEA_1_105_c.jpeg',
+    '05FE0350-8F73-456F-86CB-A9880CA215BB_1_105_c.jpeg',
+    '12F66B64-4CF6-48D8-91E5-07A23FADE2F3_1_105_c.jpeg',
+    '25F0C965-2899-4C32-AB8D-E4A11D7F7349_1_105_c.jpeg',
+    '31F0D4E8-2D0E-4F24-B96C-DFF28DF90F9B_1_105_c.jpeg',
+    '53247178-B5F8-4398-8958-D65EAFC0595D_1_105_c.jpeg',
+    '7633BB11-090D-4FA9-ACB9-E5611D3FE477_1_105_c.jpeg',
+    '8CD910EF-B5A9-48E1-B0FE-4C28CBD67F18_1_105_c.jpeg',
     '9083CD6C-EF73-4919-AAA9-0A5C84DAE84B_1_105_c.jpeg',
     'A095E589-437D-416C-B987-A826C8EC5EA5_1_105_c.jpeg',
-    '95B19B86-C81E-46DD-A081-8E25E958A3B5_1_105_c.jpeg',
-    'C8EF3D05-5BEB-4802-8FF0-B532EAB1D9BA_1_105_c.jpeg'
+    'B3D4475F-D5E4-46BA-A6CA-F315C1F59CEA_1_105_c.jpeg',
+    'BBACDE71-BFCC-456E-B8E8-CCDB73E0D947_1_105_c.jpeg',
+    'C09D7B8D-DE29-451E-9D96-D6930051D4FD_1_105_c.jpeg'
   ];
 
   const currentImageIndex = selectedImage ? galleryPhotos.indexOf(selectedImage) : -1;
@@ -83,6 +89,32 @@ export default function Home() {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [selectedImage, currentImageIndex]);
+
+  // Touch swipe handlers for mobile gallery navigation
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      navigateGallery('next');
+    } else if (isRightSwipe) {
+      navigateGallery('prev');
+    }
+  };
 
   // Smooth scroll helper
   const smoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
@@ -186,8 +218,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Skip to content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-6 focus:py-3 focus:bg-[#E0A55B] focus:text-black focus:font-bold focus:rounded"
+      >
+        Skip to main content
+      </a>
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-md shadow-sm z-50 border-b border-gray-100">
+      <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-md shadow-sm z-50 border-b border-gray-100" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center">
@@ -208,15 +248,15 @@ export default function Home() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-[#1A1A1A] hover:text-[#E0A55B] transition-colors"
+              className="md:hidden p-3 text-[#1A1A1A] hover:text-[#E0A55B] transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               )}
@@ -226,12 +266,12 @@ export default function Home() {
           {/* Mobile Menu */}
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t border-gray-100">
-              <div className="flex flex-col space-y-4">
-                <a href="#about" onClick={(e) => smoothScroll(e, '#about')} className={`${activeSection === 'about' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>About</a>
-                <a href="#menu" onClick={(e) => smoothScroll(e, '#menu')} className={`${activeSection === 'menu' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>Menu</a>
-                <a href="#hobbies" onClick={(e) => smoothScroll(e, '#hobbies')} className={`${activeSection === 'hobbies' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>Hobbies</a>
-                <a href="#gallery" onClick={(e) => smoothScroll(e, '#gallery')} className={`${activeSection === 'gallery' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>Gallery</a>
-                <a href="#contact" onClick={(e) => smoothScroll(e, '#contact')} className={`${activeSection === 'contact' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-2`}>Contact</a>
+              <div className="flex flex-col space-y-2">
+                <a href="#about" onClick={(e) => smoothScroll(e, '#about')} className={`${activeSection === 'about' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-4 min-h-[48px] flex items-center`}>About</a>
+                <a href="#menu" onClick={(e) => smoothScroll(e, '#menu')} className={`${activeSection === 'menu' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-4 min-h-[48px] flex items-center`}>Menu</a>
+                <a href="#hobbies" onClick={(e) => smoothScroll(e, '#hobbies')} className={`${activeSection === 'hobbies' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-4 min-h-[48px] flex items-center`}>Hobbies</a>
+                <a href="#gallery" onClick={(e) => smoothScroll(e, '#gallery')} className={`${activeSection === 'gallery' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-4 min-h-[48px] flex items-center`}>Gallery</a>
+                <a href="#contact" onClick={(e) => smoothScroll(e, '#contact')} className={`${activeSection === 'contact' ? 'text-[#E0A55B]' : 'text-[#1A1A1A]'} hover:text-[#E0A55B] transition-all duration-200 font-semibold text-sm uppercase tracking-wide py-4 min-h-[48px] flex items-center`}>Contact</a>
               </div>
             </div>
           )}
@@ -239,7 +279,8 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section id="hero" className={`pt-40 pb-32 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <main id="main-content">
+      <section id="hero" aria-label="Hero" className={`pt-40 pb-32 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <h2 className="text-7xl md:text-9xl font-black text-black mb-8 leading-none tracking-tighter">
@@ -251,13 +292,13 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <a
                 href="#menu"
-                className="px-12 py-5 bg-[#5A0F2E] text-white font-bold uppercase tracking-wide hover:bg-[#d09849] transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto px-12 py-6 sm:py-5 bg-[#5A0F2E] text-white font-bold uppercase tracking-wide hover:bg-[#d09849] transition-all duration-300 shadow-lg hover:shadow-xl text-center min-h-[60px] flex items-center justify-center"
               >
                 View Menu
               </a>
               <a
                 href="#hobbies"
-                className="px-12 py-5 bg-[#E0A55B] text-white font-bold uppercase tracking-wide hover:bg-[#4a0c25] transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto px-12 py-6 sm:py-5 bg-[#E0A55B] text-white font-bold uppercase tracking-wide hover:bg-[#4a0c25] transition-all duration-300 shadow-lg hover:shadow-xl text-center min-h-[60px] flex items-center justify-center"
               >
                 Explore Activities
               </a>
@@ -267,7 +308,7 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="about" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <section id="about" aria-label="About Altitude PH" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-20 items-center">
             <div className="space-y-8">
@@ -286,6 +327,7 @@ export default function Home() {
               <img
                 src="/gallery/E398FA98-68C6-4E05-B951-802224DF1B0F_1_105_c.jpeg"
                 alt="Altitude PH Coffee Shop"
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -294,7 +336,7 @@ export default function Home() {
       </section>
 
       {/* Hobbies/Activities Section */}
-      <section id="hobbies" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('hobbies') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <section id="hobbies" aria-label="Activities and outdoor hobbies" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('hobbies') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
           <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Our Passion</h3>
           <div className="grid md:grid-cols-3 gap-8">
@@ -344,7 +386,7 @@ export default function Home() {
       </section>
 
       {/* Menu Preview */}
-      <section id="menu" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('menu') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <section id="menu" aria-label="Coffee menu" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('menu') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-5xl mx-auto">
           <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Our Menu</h3>
 
@@ -371,7 +413,7 @@ export default function Home() {
               href="https://altitudeph.catalog.kyte.site/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block px-16 py-6 bg-[#E0A55B] text-black font-black text-lg uppercase tracking-wider hover:bg-black hover:text-[#E0A55B] transition-all duration-300 shadow-2xl hover:shadow-3xl"
+              className="inline-block w-full sm:w-auto px-16 py-7 sm:py-6 bg-[#E0A55B] text-black font-black text-lg uppercase tracking-wider hover:bg-black hover:text-[#E0A55B] transition-all duration-300 shadow-2xl hover:shadow-3xl min-h-[60px] flex items-center justify-center"
             >
               View Full Menu
             </a>
@@ -380,7 +422,7 @@ export default function Home() {
       </section>
 
       {/* Gallery Section */}
-      <section id="gallery" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('gallery') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <section id="gallery" aria-label="Photo gallery" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('gallery') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
           <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Gallery</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -394,6 +436,7 @@ export default function Home() {
                 <img
                   src={`/gallery/${photo}`}
                   alt={`Altitude PH Gallery ${index + 1}`}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -403,7 +446,7 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <section id="contact" aria-label="Contact information and location" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h3 className="text-6xl font-black text-black mb-10 tracking-tight">Visit Us</h3>
@@ -474,6 +517,9 @@ export default function Home() {
         <div
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Gallery image viewer"
         >
           {/* Close Button */}
           <button
@@ -501,7 +547,12 @@ export default function Home() {
           </button>
 
           {/* Image */}
-          <div className="relative">
+          <div
+            className="relative"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             <img
               src={`/gallery/${selectedImage}`}
               alt="Gallery image enlarged"
@@ -534,10 +585,10 @@ export default function Home() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 left-6 w-14 h-14 bg-[#E0A55B] hover:bg-black text-black hover:text-[#E0A55B] rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 z-40"
+          className="fixed bottom-6 left-4 md:left-6 w-16 h-16 md:w-14 md:h-14 bg-[#E0A55B] hover:bg-black text-black hover:text-[#E0A55B] rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 z-40"
           aria-label="Scroll to top"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-7 h-7 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
           </svg>
         </button>
@@ -548,7 +599,7 @@ export default function Home() {
         href="https://www.facebook.com/messages/t/100083265109805"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 w-16 h-16 bg-[#0084FF] hover:bg-[#0066CC] rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 z-40"
+        className="fixed bottom-6 right-4 md:right-6 w-16 h-16 md:w-16 md:h-16 bg-[#0084FF] hover:bg-[#0066CC] rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 z-40"
         aria-label="Message us on Facebook Messenger"
       >
         <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -557,7 +608,7 @@ export default function Home() {
       </a>
 
       {/* Footer */}
-      <footer className="bg-black text-white py-20 px-4">
+      <footer className="bg-black text-white py-20 px-4" role="contentinfo">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-black mb-6 tracking-tight">ALTITUDE</h2>
@@ -595,6 +646,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      </main>
     </div>
   );
 }
