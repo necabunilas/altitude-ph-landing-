@@ -281,15 +281,15 @@ export default function Home() {
       {/* Hero Section */}
       <main id="main-content">
       <section id="hero" aria-label="Hero" className={`pt-40 pb-32 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <h2 className="text-7xl md:text-9xl font-black text-black mb-8 leading-none tracking-tighter">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center flex flex-col items-center">
+            <h2 className="text-5xl sm:text-7xl md:text-9xl font-black text-black mb-8 leading-none tracking-tighter text-center">
               Fuel Your<br />Adventure
             </h2>
-            <p className="text-xl md:text-2xl text-[#1A1A1A] mb-14 max-w-3xl mx-auto leading-relaxed font-medium">
+            <p className="text-lg sm:text-xl md:text-2xl text-[#1A1A1A] mb-14 max-w-3xl mx-auto leading-relaxed font-medium text-center px-2">
               Where great coffee meets outdoor passion. Your pit stop for cycling, running, and unforgettable outdoor experiences.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center w-full max-w-md sm:max-w-none">
               <a
                 href="#menu"
                 className="w-full sm:w-auto px-12 py-6 sm:py-5 bg-[#5A0F2E] text-white font-bold uppercase tracking-wide hover:bg-[#d09849] transition-all duration-300 shadow-lg hover:shadow-xl text-center min-h-[60px] flex items-center justify-center"
@@ -310,15 +310,15 @@ export default function Home() {
       {/* About Section */}
       <section id="about" aria-label="About Altitude PH" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-20 items-center">
-            <div className="space-y-8">
-              <h3 className="text-6xl font-black text-black leading-tight tracking-tight">More Than Just Coffee</h3>
-              <p className="text-lg text-[#1A1A1A] leading-relaxed">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+            <div className="space-y-6 md:space-y-8">
+              <h3 className="text-3xl sm:text-4xl md:text-6xl font-black text-black leading-tight tracking-tight">More Than Just Coffee</h3>
+              <p className="text-base md:text-lg text-[#1A1A1A] leading-relaxed">
                 Altitude PH is a community hub where coffee lovers and outdoor enthusiasts come together.
                 Whether you&apos;re gearing up for a morning ride, recovering from a trail run, or simply
                 looking for great coffee and conversation, you&apos;ve found your home base.
               </p>
-              <p className="text-lg text-[#1A1A1A] leading-relaxed">
+              <p className="text-base md:text-lg text-[#1A1A1A] leading-relaxed">
                 We believe in the power of good coffee to fuel great adventures and the importance of
                 community in pushing our limits.
               </p>
@@ -338,7 +338,7 @@ export default function Home() {
       {/* Hobbies/Activities Section */}
       <section id="hobbies" aria-label="Activities and outdoor hobbies" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('hobbies') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
-          <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Our Passion</h3>
+          <h3 className="text-3xl sm:text-4xl md:text-6xl font-black text-black text-center mb-12 md:mb-20 tracking-tight">Our Passion</h3>
           <div className="grid md:grid-cols-3 gap-8">
             {/* Cycling */}
             <div className="hobby-card bg-white p-12 shadow-lg hover:shadow-2xl transition-all duration-300 group text-center md:text-left">
@@ -388,24 +388,18 @@ export default function Home() {
       {/* Menu Preview */}
       <section id="menu" aria-label="Coffee menu" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('menu') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-5xl mx-auto">
-          <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Our Menu</h3>
+          <h3 className="text-3xl sm:text-4xl md:text-6xl font-black text-black text-center mb-12 md:mb-20 tracking-tight">Our Menu</h3>
 
-          <div className="bg-[#1A1A1A] p-16 shadow-2xl mb-12">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-              <div className="flex items-start gap-6">
-                <div className="w-24 h-24 bg-[#E0A55B] flex items-center justify-center flex-shrink-0">
-                  <svg className="w-12 h-12 text-black" fill="currentColor" viewBox="0 0 512 512">
-                    <path d="M88 0C74.7 0 64 10.7 64 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C120.5 112.3 128 119.9 128 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C119.5 47.7 112 40.1 112 24c0-13.3-10.7-24-24-24zM32 192c-17.7 0-32 14.3-32 32V416c0 53 43 96 96 96H288c53 0 96-43 96-96h16c61.9 0 112-50.1 112-112s-50.1-112-112-112H352 32zm352 64h16c26.5 0 48 21.5 48 48s-21.5 48-48 48H384V256zM224 24c0-13.3-10.7-24-24-24s-24 10.7-24 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C232.5 112.3 240 119.9 240 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C231.5 47.7 224 40.1 224 24z"/>
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="text-4xl font-black text-white mb-4 uppercase tracking-tight">Coffee & Drinks</h4>
-                  <p className="text-[#B3B3B3] text-lg leading-relaxed">
-                    From espresso to cold brew, specialty lattes to refreshing iced drinks. Every cup crafted with passion to fuel your adventures.
-                  </p>
-                </div>
-              </div>
+          <div className="bg-[#1A1A1A] p-8 md:p-12 shadow-2xl mb-12 text-center">
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-[#E0A55B] flex items-center justify-center mx-auto mb-6 md:mb-10">
+              <svg className="w-10 h-10 md:w-12 md:h-12 text-black" fill="currentColor" viewBox="0 0 512 512">
+                <path d="M88 0C74.7 0 64 10.7 64 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C120.5 112.3 128 119.9 128 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C119.5 47.7 112 40.1 112 24c0-13.3-10.7-24-24-24zM32 192c-17.7 0-32 14.3-32 32V416c0 53 43 96 96 96H288c53 0 96-43 96-96h16c61.9 0 112-50.1 112-112s-50.1-112-112-112H352 32zm352 64h16c26.5 0 48 21.5 48 48s-21.5 48-48 48H384V256zM224 24c0-13.3-10.7-24-24-24s-24 10.7-24 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C232.5 112.3 240 119.9 240 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C231.5 47.7 224 40.1 224 24z"/>
+              </svg>
             </div>
+            <h4 className="text-2xl md:text-3xl font-black text-white mb-4 md:mb-6 uppercase tracking-tight">Coffee & Drinks</h4>
+            <p className="text-[#B3B3B3] text-base md:text-lg leading-relaxed max-w-xl mx-auto">
+              From espresso to cold brew, specialty lattes to refreshing iced drinks. Every cup crafted with passion to fuel your adventures.
+            </p>
           </div>
 
           <div className="text-center">
@@ -424,7 +418,7 @@ export default function Home() {
       {/* Gallery Section */}
       <section id="gallery" aria-label="Photo gallery" className={`py-28 px-4 bg-[#F7F7F7] transition-all duration-1000 ${visibleSections.has('gallery') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto">
-          <h3 className="text-6xl font-black text-black text-center mb-20 tracking-tight">Gallery</h3>
+          <h3 className="text-3xl sm:text-4xl md:text-6xl font-black text-black text-center mb-12 md:mb-20 tracking-tight">Gallery</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Gallery Grid */}
             {galleryPhotos.map((photo, index) => (
@@ -449,8 +443,8 @@ export default function Home() {
       <section id="contact" aria-label="Contact information and location" className={`py-28 px-4 bg-white transition-all duration-1000 ${visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h3 className="text-6xl font-black text-black mb-10 tracking-tight">Visit Us</h3>
-            <p className="text-2xl text-[#1A1A1A] font-semibold tracking-wide mb-4">
+            <h3 className="text-3xl sm:text-4xl md:text-6xl font-black text-black mb-8 md:mb-10 tracking-tight">Visit Us</h3>
+            <p className="text-lg md:text-2xl text-[#1A1A1A] font-semibold tracking-wide mb-4">
               Come for the coffee, stay for the community
             </p>
             <div className="inline-flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-default">
