@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
+import { HOURS, SITE, formatTime24 } from "./site";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -8,39 +9,39 @@ const montserrat = Montserrat({
   weight: ["400", "500", "600", "700", "800", "900"],
 });
 
+const title = `${SITE.name} | ${SITE.tagline}`;
+
 export const metadata: Metadata = {
-  title: "Altitude PH - Fuel Your Adventure",
-  description: "Where great coffee meets outdoor passion. Your pit stop for cycling, running, and unforgettable outdoor experiences.",
-  keywords: ["coffee shop", "cycling", "running", "outdoor sports", "cafe", "Quezon City", "Philippines", "specialty coffee"],
-  authors: [{ name: "Altitude PH" }],
+  ...(SITE.url && { metadataBase: new URL(SITE.url), alternates: { canonical: SITE.url } }),
+  title,
+  description: SITE.description,
+  keywords: ["coffee shop", "specialty coffee", "cafe", "cycling", "running", "outdoors", "Malaybalay City", "Bukidnon", "Philippines"],
+  authors: [{ name: SITE.name }],
   openGraph: {
-    title: "Altitude PH - Fuel Your Adventure",
-    description: "Where great coffee meets outdoor passion. Your pit stop for cycling, running, and unforgettable outdoor experiences.",
-    url: "https://altitudeph.com",
-    siteName: "Altitude PH",
+    title,
+    description: SITE.description,
+    url: SITE.url,
+    siteName: SITE.name,
     locale: "en_PH",
     type: "website",
     images: [
       {
-        url: "/logo_white.png",
+        url: "/og.jpg",
         width: 1200,
         height: 630,
-        alt: "Altitude PH - Coffee and Outdoor Adventures",
+        alt: "A biscuit being dipped into a latte at altitude.cc",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Altitude PH - Fuel Your Adventure",
-    description: "Where great coffee meets outdoor passion. Your pit stop for cycling, running, and unforgettable outdoor experiences.",
-    images: ["/logo_white.png"],
+    title,
+    description: SITE.description,
+    images: ["/og.jpg"],
   },
   robots: {
     index: true,
     follow: true,
-  },
-  alternates: {
-    canonical: "https://altitudeph.com",
   },
 };
 
@@ -52,44 +53,30 @@ export default function RootLayout({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CafeOrCoffeeShop",
-    name: "Altitude PH",
-    description: "Where great coffee meets outdoor passion. Your pit stop for cycling, running, and unforgettable outdoor experiences.",
-    url: "https://altitudeph.com",
-    telephone: "+63-XXX-XXX-XXXX",
+    name: SITE.name,
+    description: SITE.description,
+    ...(SITE.url && { url: SITE.url, hasMenu: `${SITE.url}#menu` }),
+    telephone: SITE.phone.replaceAll(" ", "-"),
     address: {
       "@type": "PostalAddress",
-      streetAddress: "123 Main Street",
-      addressLocality: "Quezon City",
-      addressRegion: "Metro Manila",
-      postalCode: "1100",
+      streetAddress: SITE.street,
+      addressLocality: SITE.city,
+      addressRegion: SITE.province,
       addressCountry: "PH"
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 14.6760,
-      longitude: 121.0437
+      ...SITE.geo
     },
-    openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        opens: "10:00",
-        closes: "20:00"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: "Sunday",
-        opens: "14:00",
-        closes: "19:00"
-      }
-    ],
-    sameAs: [
-      "https://www.facebook.com/altitudecoffeeph",
-      "https://www.instagram.com/altitudecoffeeph"
-    ],
+    openingHoursSpecification: HOURS.filter((h) => h.open !== null).map((h) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: h.day,
+      opens: formatTime24(h.open as number),
+      closes: formatTime24(h.close as number)
+    })),
+    sameAs: [SITE.facebook, SITE.instagram],
     priceRange: "$$",
-    servesCuisine: "Coffee",
-    hasMenu: "https://altitudeph.com#menu"
+    servesCuisine: "Coffee"
   };
 
   return (
