@@ -16,7 +16,7 @@ export const SITE = {
   // Pinned by coordinates: Google's place embed still shows the old name and address.
   mapsEmbedUrl: 'https://maps.google.com/maps?q=8.129179,125.1284403&z=16&output=embed',
   facebook: 'https://www.facebook.com/altitudecoffeeph',
-  instagram: 'https://www.instagram.com/altitude.ph/',
+  instagram: 'https://www.instagram.com/altitude.cc/',
   messenger: 'https://www.facebook.com/messages/t/100083265109805',
 };
 
